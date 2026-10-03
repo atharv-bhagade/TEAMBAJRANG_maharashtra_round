@@ -5,10 +5,15 @@ const base =
 
 const variants = {
   primary:
-    'bg-brand-600 text-white shadow-lg shadow-brand-600/25 hover:bg-brand-700 hover:shadow-brand-700/30',
-  secondary: 'bg-white text-slate-800 ring-1 ring-slate-300 hover:bg-slate-50',
-  ghost: 'text-slate-700 hover:bg-slate-100',
-  danger: 'bg-rose-600 text-white hover:bg-rose-700',
+    'bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white shadow-lg shadow-violet-950/50 hover:from-violet-500 hover:via-purple-500 hover:to-indigo-500 hover:shadow-violet-600/30 border border-violet-400/20',
+  secondary:
+    'bg-[#1D1D2B] text-[#F5F5FA] border border-white/10 hover:bg-[#28283C] hover:border-white/20 shadow-md',
+  ghost:
+    'text-slate-300 hover:text-white hover:bg-white/5',
+  outline:
+    'border border-violet-500/40 text-violet-300 hover:bg-violet-950/30 hover:border-violet-400',
+  danger:
+    'bg-rose-600/90 text-white hover:bg-rose-500 border border-rose-500/30 shadow-lg shadow-rose-950/40',
 }
 
 const sizes = {

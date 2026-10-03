@@ -44,14 +44,21 @@ export default function Queue() {
   }
 
   let body
-  if (restoring) body = <LoadingBlock text="Loading..." />
-  else if (checking) body = <LoadingBlock text="Checking queue status..." />
+  if (restoring) body = <LoadingBlock text="Loading entry…" />
+  else if (checking) body = <LoadingBlock text="Checking pool status…" />
   else if (status === QUEUE_STATUS.NOT_JOINED)
     body = (
-      <Card className="text-center">
-        <h1 className="font-display text-2xl font-bold">You haven't joined the queue yet</h1>
-        <p className="mt-2 text-slate-600">Join the queue from the drop page to get started.</p>
-        <Button to="/drop" className="mt-6">Go to drop</Button>
+      <Card className="text-center bg-[#15151F] border border-white/10 shadow-2xl py-12">
+        <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-white/5 border border-white/10 text-3xl text-slate-400 mb-4">
+          🎟️
+        </div>
+        <h1 className="font-display text-2xl font-bold text-white">You haven't joined the pool yet</h1>
+        <p className="mt-2 text-sm text-slate-400 max-w-sm mx-auto">
+          Choose your requested ticket count from the drop page to enter the fair pool.
+        </p>
+        <Button to="/drop" className="mt-6">
+          View Live Drop
+        </Button>
       </Card>
     )
   else if (status === QUEUE_STATUS.WAITING)
@@ -73,13 +80,16 @@ export default function Queue() {
     body = <ReAuthNotice ticketsOwned={user.ticketsOwned} maxTickets={user.maxTickets} onReAuth={onReAuth} loading={reAuthing} />
   else if (status === QUEUE_STATUS.COMPLETED)
     body = (
-      <Card className="text-center">
-        <h1 className="font-display text-2xl font-bold">Tickets confirmed</h1>
-        <p className="mt-2 text-slate-600">Your tickets: {user.ticketsOwned} / {drop.maxTicketsPerUser}</p>
-        <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-          <Button to="/allocation">View confirmed tickets</Button>
+      <Card className="text-center bg-[#15151F] border border-white/10 shadow-2xl py-10">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-950/70 border border-emerald-500/40 text-3xl text-emerald-400 mb-4">
+          ✓
+        </div>
+        <h1 className="font-display text-3xl font-extrabold text-white">Tickets Confirmed</h1>
+        <p className="mt-2 text-sm text-slate-300">Your tickets: {user.ticketsOwned} / {drop.maxTicketsPerUser}</p>
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button to="/allocation">View Confirmed Tickets</Button>
           {user.ticketsOwned < drop.maxTicketsPerUser && (
-            <Button to="/drop" variant="secondary">Join Queue Again</Button>
+            <Button to="/drop" variant="secondary">Join Fair Drop Again</Button>
           )}
         </div>
       </Card>
@@ -98,8 +108,10 @@ export default function Queue() {
         />
       )}
       <div className="fd-fade-up" key={restoring || checking ? 'loading' : status}>{body}</div>
-      <p className="mt-6 text-center text-sm">
-        <Link to="/drop" className="text-slate-500 underline hover:text-slate-800">← Drop details</Link>
+      <p className="mt-8 text-center text-xs">
+        <Link to="/drop" className="text-slate-400 hover:text-white transition-colors underline">
+          ← Back to Drop Details
+        </Link>
       </p>
     </PageContainer>
   )

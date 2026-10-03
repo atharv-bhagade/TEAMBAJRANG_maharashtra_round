@@ -1,9 +1,9 @@
 const tones = {
-  slate: 'bg-slate-100 text-slate-700 ring-slate-200',
-  brand: 'bg-brand-50 text-brand-700 ring-brand-100',
-  green: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  amber: 'bg-amber-50 text-amber-800 ring-amber-200',
-  red: 'bg-rose-50 text-rose-700 ring-rose-200',
+  slate: 'bg-white/5 text-slate-300 ring-white/10',
+  brand: 'bg-violet-950/60 text-violet-300 ring-violet-500/30',
+  green: 'bg-emerald-950/60 text-emerald-300 ring-emerald-500/30',
+  amber: 'bg-amber-950/60 text-amber-300 ring-amber-500/30',
+  red: 'bg-rose-950/60 text-rose-300 ring-rose-500/30',
 }
 
 export default function Badge({ tone = 'slate', icon, className = '', children }) {

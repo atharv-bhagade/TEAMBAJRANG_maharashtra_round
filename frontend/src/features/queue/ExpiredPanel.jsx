@@ -14,16 +14,18 @@ export default function ExpiredPanel({ requestedQuantity }) {
     return () => clearTimeout(id)
   }, [navigate])
 
-  const held = requestedQuantity === 1 ? '1 temporarily held ticket was' : `${requestedQuantity} temporarily held tickets were`
-
   return (
-    <Card className="text-center" role="status" aria-live="polite">
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-slate-100 text-3xl text-slate-600" aria-hidden="true">⏱</div>
-      <h1 className="mt-5 font-display text-3xl font-bold text-slate-900">Your claim window expired.</h1>
-      <p className="mx-auto mt-3 max-w-md text-slate-600">
+    <Card className="text-center bg-[#15151F] border border-white/10 shadow-2xl" role="status" aria-live="polite">
+      <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-white/5 border border-white/10 text-3xl text-slate-400" aria-hidden="true">
+        ⏱
+      </div>
+      <h1 className="mt-5 font-display text-3xl font-extrabold text-white">Your claim window expired.</h1>
+      <p className="mx-auto mt-3 max-w-md text-slate-400 text-sm">
         The tickets are no longer held for you.
       </p>
-      <Button to="/" variant="secondary" className="mt-6">Back to Home</Button>
+      <Button to="/" variant="secondary" className="mt-8">
+        Back to Home
+      </Button>
     </Card>
   )
 }

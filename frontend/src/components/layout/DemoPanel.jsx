@@ -73,7 +73,7 @@ export default function DemoPanel() {
             <Btn onClick={admit} active={queue.status === QUEUE_STATUS.ADMITTED}>Simulate Admission</Btn>
             <Btn onClick={() => shortenClaimWindow(5)}>Expire in 5s</Btn>
             <Btn onClick={simulateCooldown} active={queue.status === QUEUE_STATUS.COOLDOWN}>Cooldown</Btn>
-            <Btn onClick={simulateReAuth} active={queue.status === QUEUE_STATUS.RE_AUTH_REQUIRED}>Re-auth</Btn>
+            <Btn onClick={simulateReAuth} active={Boolean(session?.reAuthRequired)}>Re-auth</Btn>
             <Btn onClick={simulateClosed} active={queue.status === QUEUE_STATUS.CLOSED}>Closed</Btn>
           </Row>
           <Row label="Drop state">

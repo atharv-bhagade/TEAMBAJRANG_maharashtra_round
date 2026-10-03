@@ -13,7 +13,9 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/drop" element={<ProtectedRoute><DropDetails /></ProtectedRoute>} />
       <Route path="/queue" element={<ProtectedRoute><Queue /></ProtectedRoute>} />
+      <Route path="/my-entries" element={<ProtectedRoute><Queue /></ProtectedRoute>} />
       <Route path="/allocation" element={<ProtectedRoute><AllocationResult /></ProtectedRoute>} />
+      <Route path="/my-tickets" element={<ProtectedRoute><AllocationResult /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
