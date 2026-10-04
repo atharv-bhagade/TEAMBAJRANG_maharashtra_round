@@ -4,8 +4,12 @@ import LoginForm from '../features/auth/LoginForm'
 import { useAuth } from '../hooks/useAuth'
 
 export default function Login() {
-  const { isAuthenticated, reAuthRequired } = useAuth()
-  if (isAuthenticated && !reAuthRequired) return <Navigate to="/drop" replace />
+  const { isAuthenticated, reAuthRequired, isAdmin, redirectAfterLogin } = useAuth()
+
+  // If already authenticated and re-authentication is not required, redirect
+  if (isAuthenticated && !reAuthRequired) {
+    return <Navigate to={redirectAfterLogin || (isAdmin ? '/admin' : '/')} replace />
+  }
 
   return (
     <PageContainer>
@@ -23,43 +27,34 @@ export default function Login() {
                 Verified Fan Access
               </span>
               <h2 className="mt-6 font-display text-2xl font-bold text-white tracking-tight leading-snug">
-                Your next unforgettable moment starts here.
+                Your next unforgettable live event starts here.
               </h2>
               <p className="mt-3 text-sm text-violet-200/80 leading-relaxed">
-                Fair Drop replaces frantic click-races with an orderly, randomized ticket pool.
+                Fair Drop connects real fans to premier concerts and world tours with fair seat allocation.
               </p>
             </div>
 
-            {/* Simulated Digital Ticket Graphic */}
+            {/* Digital Ticket Graphic */}
             <div className="relative z-10 mt-8 rounded-2xl bg-[#110D20]/90 p-4 border border-violet-500/20 shadow-lg">
               <div className="flex items-center justify-between text-xs text-violet-300">
-                <span className="font-semibold uppercase tracking-wider">Pool Pass</span>
+                <span className="font-semibold uppercase tracking-wider">Live Tour Pass</span>
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
               </div>
               <p className="mt-2 font-display text-base font-bold text-white">Coldplay — Mumbai</p>
               <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-white/5">
-                <span>Fair Pool · Nov 2026</span>
+                <span>Direct Quota · Nov 2026</span>
                 <span className="font-mono text-violet-400">FAIR-DROP</span>
               </div>
             </div>
 
             <p className="relative z-10 text-[11px] text-slate-500 mt-6">
-              © Fair Drop · Fair access to high-demand drops
+              © Fair Drop · Premier Live Events & Tours
             </p>
           </div>
 
           {/* Form Column */}
           <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-center">
             <div className="max-w-md mx-auto w-full fd-fade-up">
-              <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                {reAuthRequired ? 'Please sign in again to continue.' : 'Welcome to Fair Drop'}
-              </h1>
-              <p className="mt-2 mb-6 text-sm text-slate-400">
-                {reAuthRequired
-                  ? 'For security, please sign in again.'
-                  : 'Sign in to access your fair pool entries and tickets.'}
-              </p>
-
               <LoginForm />
             </div>
           </div>

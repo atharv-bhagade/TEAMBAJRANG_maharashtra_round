@@ -1,171 +1,223 @@
+import { useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
-import EventCard from '../components/drop/EventCard'
-import Button from '../components/ui/Button'
-import LoadingBlock from '../components/ui/LoadingBlock'
-import { useDrop } from '../hooks/useDrop'
-import { DROP_STATUS } from '../mock/mockData'
-
-const steps = [
-  {
-    step: '01',
-    title: 'Join the entry pool',
-    description: 'Select your ticket count and enter during the window. There is no rush and no race to click first.',
-    icon: (
-      <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-      </svg>
-    ),
-  },
-  {
-    step: '02',
-    title: 'Wait for admission',
-    description: 'When the pool closes, allocations open. Everyone gets an equal, randomized chance regardless of bandwidth.',
-    icon: (
-      <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-  {
-    step: '03',
-    title: 'Claim your tickets',
-    description: 'Admitted fans receive a dedicated window to claim tickets held exclusively for them.',
-    icon: (
-      <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-]
-
-const principles = [
-  {
-    title: 'One entry per account',
-    body: 'Your place in the pool is saved to your account. Extra tabs or rapid refreshes provide zero advantage.',
-  },
-  {
-    title: 'No speed race',
-    body: 'Your chance shouldn’t depend on your internet speed. Join calmly during the window.',
-  },
-  {
-    title: 'Flexible quantities',
-    body: 'Request what you need, up to the 4-ticket per account limit. Everyone is treated equally.',
-  },
-]
+import EventCard from '../components/events/EventCard'
+import { useEvents } from '../hooks/useEvents'
+import { EVENT_CATEGORIES } from '../mock/mockData'
 
 export default function Home() {
-  const { drop, loading } = useDrop()
-  const open = drop.status === DROP_STATUS.OPEN
+  const { events } = useEvents()
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Filter events dynamically
+  const filteredEvents = useMemo(() => {
+    return events.filter((e) => {
+      const matchesCategory =
+        selectedCategory === 'All' ||
+        (e.category && e.category.toLowerCase() === selectedCategory.toLowerCase())
+
+      const matchesSearch =
+        searchQuery.trim() === '' ||
+        e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.venue.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (e.city && e.city.toLowerCase().includes(searchQuery.toLowerCase()))
+
+      return matchesCategory && matchesSearch
+    })
+  }, [events, selectedCategory, searchQuery])
+
+  const featuredEvent = useMemo(() => {
+    return events.find((e) => e.featured) || events[0]
+  }, [events])
 
   return (
     <PageContainer>
-      {/* Hero Section */}
-      <section className="grid items-center gap-12 lg:grid-cols-12 lg:gap-14 pt-4 sm:pt-8">
-        <div className="lg:col-span-6 fd-fade-up">
-          <div className="inline-flex items-center gap-2 rounded-full bg-violet-950/70 px-3.5 py-1.5 text-xs font-semibold text-violet-300 border border-violet-500/30">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500" />
-            </span>
-            <span>Live Fair Pool Open</span>
+      {/* Hero Showcase Banner */}
+      {featuredEvent && (
+        <section className="relative overflow-hidden rounded-3xl bg-[#141420] border border-white/10 shadow-2xl mt-2 sm:mt-4 fd-fade-up">
+          <div className="absolute inset-0 z-0">
+            <img
+              src={featuredEvent.bannerUrl}
+              alt={featuredEvent.title}
+              className="h-full w-full object-cover object-center opacity-40 scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B12] via-[#0B0B12]/80 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B12] via-transparent to-black/20" />
           </div>
 
-          <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Big moments.{' '}
-            <span className="bg-gradient-to-r from-violet-400 via-fuchsia-300 to-indigo-300 bg-clip-text text-transparent">
-              A fair chance.
+          <div className="relative z-10 grid gap-6 p-6 sm:p-10 lg:grid-cols-12 lg:gap-10 items-center">
+            <div className="lg:col-span-8 space-y-4">
+              <div className="inline-flex items-center gap-2 rounded-full bg-violet-950/80 px-3.5 py-1 text-xs font-semibold text-violet-300 border border-violet-500/30">
+                <span className="h-2 w-2 rounded-full bg-violet-400 animate-pulse" />
+                <span>Featured Headline Tour</span>
+              </div>
+
+              <h1 className="font-display text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                {featuredEvent.title}
+              </h1>
+
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+                {featuredEvent.description}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-300 pt-2">
+                <span className="flex items-center gap-1.5 font-medium text-white">
+                  <span>📅</span> {featuredEvent.date}
+                </span>
+                <span className="text-slate-500">·</span>
+                <span className="flex items-center gap-1.5 text-slate-300">
+                  <span>📍</span> {featuredEvent.venue}
+                </span>
+              </div>
+
+              <div className="pt-3 flex flex-wrap items-center gap-4">
+                <Link
+                  to={`/events/${featuredEvent.id}`}
+                  className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3.5 text-sm font-semibold text-white shadow-xl shadow-violet-950/60 hover:from-violet-500 hover:to-indigo-500 transition-all hover:scale-102"
+                >
+                  Book Tickets from ${featuredEvent.pricePerTicket} →
+                </Link>
+                <div className="text-xs text-slate-400">
+                  <span className="font-bold text-emerald-400">{featuredEvent.availableSeats}</span> seats remaining
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Event Discovery Section */}
+      <section id="events" className="mt-12 sm:mt-16 scroll-mt-24">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/10">
+          <div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-violet-400">
+              Live Experiences
             </span>
-          </h1>
-
-          <p className="mt-6 text-lg leading-relaxed text-slate-300 max-w-xl">
-            Enter exclusive ticket drops without the rush. Join during the entry window and let fair allocation decide.
-          </p>
-
-          <div className="mt-6 p-4 rounded-2xl bg-[#15151F] border border-white/5 text-sm text-slate-300">
-            <p className="font-semibold text-white">“Your chance shouldn’t depend on your internet speed.”</p>
-            <p className="text-slate-400 text-xs mt-1">Join the pool. Everyone gets a fair chance.</p>
+            <h2 className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Upcoming Shows & Tours
+            </h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Select an event to view seat tiers, live availability, and reserve official tickets.
+            </p>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Button to="/drop" size="lg" className="w-full sm:w-auto shadow-xl shadow-violet-950/50">
-              Explore Drops
-            </Button>
-            <a
-              href="#how"
-              className="inline-flex items-center justify-center rounded-xl px-5 py-3.5 text-base font-semibold text-slate-300 hover:text-white hover:bg-white/5 border border-white/10 transition-colors w-full sm:w-auto text-center"
-            >
-              How It Works →
-            </a>
+          {/* Search bar */}
+          <div className="w-full md:w-72">
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                🔍
+              </span>
+              <input
+                type="text"
+                placeholder="Search artist, tour, venue…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-[#141420] pl-10 pr-4 py-2.5 text-xs text-white placeholder:text-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Featured Drop Card */}
-        <div id="drops" className="lg:col-span-6 fd-fade-up scroll-mt-24" style={{ animationDelay: '120ms' }}>
-          {loading ? (
-            <LoadingBlock text="Loading drop..." />
+        {/* Category Pills */}
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          {EVENT_CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCategory(cat)}
+                className={`rounded-xl px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-violet-600 text-white shadow-md shadow-violet-950/50'
+                    : 'bg-[#151522] text-slate-300 hover:bg-[#1E1E2F] hover:text-white border border-white/5'
+                }`}
+              >
+                {cat}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Dynamic Multi-Event Grid */}
+        <div className="mt-8">
+          {filteredEvents.length === 0 ? (
+            <div className="rounded-3xl bg-[#141420] border border-white/10 p-12 text-center">
+              <span className="text-3xl">🎸</span>
+              <h3 className="mt-3 font-display text-lg font-bold text-white">No matching events found</h3>
+              <p className="mt-1 text-xs text-slate-400">
+                Try searching with another keyword or select a different category.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory('All')
+                  setSearchQuery('')
+                }}
+                className="mt-4 rounded-xl bg-white/10 px-4 py-2 text-xs font-semibold text-white hover:bg-white/20 transition-colors"
+              >
+                Reset Filters
+              </button>
+            </div>
           ) : (
-            <EventCard drop={drop}>
-              <Button to="/drop" size="lg" className="w-full" aria-disabled={!open}>
-                {open ? 'Join Fair Drop' : 'View Drop'}
-              </Button>
-            </EventCard>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredEvents.map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
+            </div>
           )}
         </div>
       </section>
 
-      {/* How it Works Section */}
-      <section id="how" className="mt-28 scroll-mt-24">
-        <div className="text-center max-w-2xl mx-auto">
-          <p className="text-xs font-semibold uppercase tracking-widest text-violet-400">The Fair Drop Process</p>
-          <h2 className="mt-3 font-display text-3xl font-extrabold text-white sm:text-4xl tracking-tight">
-            How the Fair Pool Works
-          </h2>
-          <p className="mt-3 text-slate-400 text-base">
-            No bots winning in milliseconds. No crashed servers. Just orderly, verified allocation.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {steps.map((s) => (
-            <div
-              key={s.step}
-              className="relative overflow-hidden rounded-2xl bg-[#15151F] p-7 border border-white/10 shadow-lg shadow-black/40 group hover:border-violet-500/30 transition-all duration-200"
-            >
-              <div className="flex items-center justify-between">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-violet-950/70 border border-violet-500/20">
-                  {s.icon}
-                </span>
-                <span className="font-display font-extrabold text-2xl text-slate-700 select-none">
-                  {s.step}
-                </span>
-              </div>
-              <h3 className="mt-5 font-display text-lg font-bold text-white tracking-tight">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">{s.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Fairness Principles Section */}
-      <section className="mt-24 rounded-3xl bg-gradient-to-br from-[#181827] to-[#12121E] border border-white/10 p-8 sm:p-12 shadow-2xl">
+      {/* Platform Features / Commitment Section (Clean ticketing copy) */}
+      <section className="mt-20 rounded-3xl bg-gradient-to-br from-[#151524] to-[#0E0E18] border border-white/10 p-8 sm:p-10 shadow-2xl">
         <div className="max-w-2xl">
-          <span className="text-xs font-semibold uppercase tracking-widest text-violet-400">Our Commitment</span>
-          <h2 className="mt-2 font-display text-3xl font-extrabold text-white tracking-tight">
-            Built Around Fairness
+          <span className="text-xs font-semibold uppercase tracking-wider text-violet-400">
+            Booking Assurance
+          </span>
+          <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            The Premier Live Ticketing Standard
           </h2>
-          <p className="mt-3 text-slate-300">
-            Engineered to give genuine fans an equal opportunity to experience the artists they love.
+          <p className="mt-2 text-sm text-slate-300">
+            Guaranteed primary tickets, secure digital admissions, and verified checkout.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-3">
-          {principles.map((p, idx) => (
-            <div key={p.title} className="rounded-2xl bg-[#15151F]/80 p-5 border border-white/5">
-              <span className="text-xs font-bold text-violet-400 uppercase tracking-wider">Rule {idx + 1}</span>
-              <h3 className="mt-2 font-display text-base font-bold text-white">{p.title}</h3>
-              <p className="mt-2 text-xs leading-relaxed text-slate-400">{p.body}</p>
-            </div>
-          ))}
+        <div className="mt-8 grid gap-6 sm:grid-cols-3">
+          <div className="rounded-2xl bg-[#13131F]/80 p-5 border border-white/5">
+            <span className="text-xl">🎟️</span>
+            <h3 className="mt-3 font-display text-base font-bold text-white">Direct Quotas</h3>
+            <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+              All inventory is sourced directly from event promoters with verified seat holds and fixed price caps.
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-[#13131F]/80 p-5 border border-white/5">
+            <span className="text-xl">🛡️</span>
+            <h3 className="mt-3 font-display text-base font-bold text-white">Human Security Check</h3>
+            <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+              Interactive human verification ensures authentic fans secure tickets during high-demand on-sales.
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-[#13131F]/80 p-5 border border-white/5">
+            <span className="text-xl">📱</span>
+            <h3 className="mt-3 font-display text-base font-bold text-white">Instant Digital Pass</h3>
+            <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+              Confirmed tickets appear instantly in your account with secure tokens ready for gate scanning.
+            </p>
+          </div>
         </div>
       </section>
     </PageContainer>

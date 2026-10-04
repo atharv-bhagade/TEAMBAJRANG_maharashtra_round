@@ -1,36 +1,76 @@
-import { useCallback } from 'react'
-import { useMockState } from './useMockState'
-import { setState, getPostLoginDestination } from '../mock/mockState'
+import { useState, useEffect, useCallback } from 'react'
+import {
+  getState,
+  subscribe,
+  switchUser as storeSwitchUser,
+  loginUser as storeLoginUser,
+  signupUser as storeSignupUser,
+  forceReauth as storeForceReauth,
+  clearReauth as storeClearReauth,
+  logoutUser as storeLogoutUser,
+} from '../mock/mockState'
+import { mockUsers } from '../mock/mockData'
 
-// Auth abstraction. Phase 1: mock login only.
-// Phase 2: replace the internals with Firebase Authentication; the returned
-// shape ({ user, isAuthenticated, reAuthRequired, login, logout, getPostLoginDestination }) stays stable.
 export function useAuth() {
-  const { session, user } = useMockState()
+  const [state, setRawState] = useState(() => getState())
+
+  useEffect(() => {
+    return subscribe(() => {
+      setRawState(getState())
+    })
+  }, [])
+
+  const user = state.currentUser || mockUsers[0]
+  const users = state.users || mockUsers
+  const session = state.session || { loggedIn: true, reAuthRequired: false, redirectAfterLogin: null }
+  const isAdmin = user?.role === 'admin'
+  const isAuthenticated = Boolean(session.loggedIn && user && user.id)
+  const reAuthRequired = Boolean(session.reAuthRequired)
+  const redirectAfterLogin = session.redirectAfterLogin
+
+  const switchActiveUser = useCallback((userId) => {
+    storeSwitchUser(userId)
+  }, [])
 
   const login = useCallback(async ({ email, password }) => {
-    await new Promise((r) => setTimeout(r, 700))
-    if (!email || !password) {
-      throw new Error('Please enter your email and password.')
-    }
-    setState((s) => ({
-      session: { loggedIn: true, reAuthRequired: false },
-      user: { ...s.user, email, name: email.split('@')[0] || s.user.name },
-    }))
+    return storeLoginUser({ email, password })
+  }, [])
+
+  const signup = useCallback(async ({ name, email, password, confirmPassword }) => {
+    return storeSignupUser({ name, email, password, confirmPassword })
+  }, [])
+
+  const forceReauth = useCallback((returnPath) => {
+    storeForceReauth(returnPath)
+  }, [])
+
+  const clearReauth = useCallback(() => {
+    storeClearReauth()
   }, [])
 
   const logout = useCallback(() => {
-    setState({ session: { loggedIn: false, reAuthRequired: false } })
+    storeLogoutUser()
   }, [])
 
-  const isAuthenticated = Boolean(session.loggedIn && !session.reAuthRequired)
-  const reAuthRequired = Boolean(session.reAuthRequired)
+  const getPostLoginDestination = useCallback(() => {
+    if (redirectAfterLogin) return redirectAfterLogin
+    if (user?.role === 'admin') return '/admin'
+    return '/'
+  }, [redirectAfterLogin, user])
 
   return {
     user,
+    users,
+    session,
+    isAdmin,
     isAuthenticated,
     reAuthRequired,
+    redirectAfterLogin,
+    switchUser: switchActiveUser,
     login,
+    signup,
+    forceReauth,
+    clearReauth,
     logout,
     getPostLoginDestination,
   }
